@@ -1,0 +1,46 @@
+name: Build firmware
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['firmware/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 core and libraries
+        run: |
+          pip install pyserial esptool==4.8.1
+          arduino-cli config init
+          arduino-cli config set board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32@2.0.17
+          arduino-cli lib install "Adafruit SSD1306" "Adafruit GFX Library"
+      - name: Compile
+        run: arduino-cli compile --fqbn esp32:esp32:esp32 --output-dir build oled_lyrics_show
+      - name: Make one flashable file
+        run: |
+          mkdir -p firmware
+          esptool.py --chip esp32 merge_bin -o firmware/oled_lyrics_show.bin \
+            --flash_mode dio --flash_freq 40m --flash_size 4MB \
+            0x1000 build/oled_lyrics_show.ino.bootloader.bin \
+            0x8000 build/oled_lyrics_show.ino.partitions.bin \
+            0xe000 ~/.arduino15/packages/esp32/hardware/esp32/2.0.17/tools/partitions/boot_app0.bin \
+            0x10000 build/oled_lyrics_show.ino.bin
+          cp firmware/oled_lyrics_show.bin site/firmware.bin
+      - name: Save firmware in the repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add firmware/oled_lyrics_show.bin
+          git commit -m "Update firmware [skip ci]" || echo "no change"
+          git push
+      - name: Publish web flasher
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

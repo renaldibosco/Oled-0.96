@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OLED Lyrics Show - Install</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#eee;max-width:560px;margin:40px auto;padding:0 16px;line-height:1.5}
+h1{font-size:24px}li{margin:6px 0}code{background:#222;padding:2px 6px;border-radius:4px}
+</style>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</head>
+<body>
+<h1>OLED Lyrics Show</h1>
+<p>Plug the ESP32 into this computer with USB, then press the button (Chrome or Edge on a laptop).</p>
+<esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+<ol>
+<li>Pick the port named <code>CP210x</code> or <code>CH340</code>. If the list is empty, install that USB driver first.</li>
+<li>If it gets stuck on "Connecting", hold the BOOT button on the board.</li>
+<li>After it finishes, connect your phone to WiFi <code>OLED-Lyrics</code> (password <code>12345678</code>) and open <code>192.168.4.1</code>.</li>
+</ol>
+<p>Wiring: VCC to 3V3, GND to GND, SCL to GPIO 22, SDA to GPIO 21.</p>
+</body>
+</html>
