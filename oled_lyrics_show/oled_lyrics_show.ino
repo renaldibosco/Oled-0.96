@@ -40,8 +40,8 @@ String rows[8];
 int rowCount = 0;
 int textSize = 1;
 
-float bars[16];
-float barTarget[16];
+static float eqBars[16];
+static float eqTarget[16];
 uint32_t lastBarMs = 0;
 
 // ---------------------------------------------------------------- web page
@@ -212,13 +212,13 @@ void drawBars(bool active) {
   if (now - lastBarMs > 90) {
     lastBarMs = now;
     for (int i = 0; i < 16; i++) {
-      barTarget[i] = active ? random(1, 12) : 2.5f + 2.0f * sin(now / 400.0f + i * 0.6f);
+      eqTarget[i] = active ? random(1, 12) : 2.5f + 2.0f * sin(now / 400.0f + i * 0.6f);
     }
   }
   display.fillRect(0, LYRIC_H + 1, 128, 64 - LYRIC_H - 1, SSD1306_BLACK);
   for (int i = 0; i < 16; i++) {
-    bars[i] += (barTarget[i] - bars[i]) * 0.35f;
-    int h = (int)bars[i];
+    eqBars[i] += (eqTarget[i] - eqBars[i]) * 0.35f;
+    int h = (int)eqBars[i];
     if (h < 1) h = 1;
     display.fillRect(i * 8 + 1, 61 - h, 6, h, SSD1306_WHITE);
   }
